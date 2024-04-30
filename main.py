@@ -53,5 +53,32 @@ def subjectize():
     return jsonify({'response': response['message']['content']})
 
 
+@app.route("/sentiment", methods=['POST'])
+def analyze_sentiment():
+    body = request.get_json()
+    comment = body['comment']
+    messages = [
+        {
+            'role': 'system',
+            'content': 'You are a sentiment analysis bot. You will take comments from the user and return a numeric score from -2 to +2 where -2 is the most negative, 0 is neutral, and +2 is the most positive. Say YES if you understand.'
+        }, {
+            'role': 'assistant',
+            'content': 'YES'
+        }, {
+            'role': 'user',
+            'content': 'it was hard for me to find what I was looking for, and it cost more than I would have wanted, but the shop was clean'
+        }, {
+            'role': 'assistant',
+            'content': '-1'
+        }, {
+            'role': 'user',
+            'content': f'{comment}'
+        }
+    ]
+    response = ollama.chat('llama3', messages=messages)
+    print(response['message']['content'])
+    return jsonify({'response': response['message']['content']})
+
+
 if __name__ == '__main__':
     app.run('0.0.0.0', debug=True)
